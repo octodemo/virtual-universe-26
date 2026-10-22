@@ -50,7 +50,7 @@ Already in a session? Open **+ → Installed extensions → Universe '26 welcome
 
 Copy the command below into your terminal for a surprise experience walking you through the GitHub Universe highlights. 
 
-```
+```sh
 curl leereilly.net
 ```
 
