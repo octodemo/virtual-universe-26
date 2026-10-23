@@ -1,4 +1,4 @@
-# GitHub Virtual Universe '26
+# GitHub Virtual Universe 2026
 
 Cookbooks to learn how to build with GitHub's latest features.<br>
 Start by downloading the [**GitHub Copilot app**](https://github.com/features/ai/github-app) ✨<br>
