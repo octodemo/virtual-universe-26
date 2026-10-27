@@ -62,12 +62,15 @@ async function harness(gh = fakeGh(), home = mkdtempSync(join(tmpdir(), "cheatsh
     return { gh, home, canvas: registration.canvases[0] };
 }
 
-test("the guide page points at /create-issue-artifact and serves its images", async () => {
+test("the guide page points at /cheatsheet-artifact and serves its images", async () => {
     const { canvas } = await harness();
     const { url } = await canvas.open({ instanceId: "t" });
     try {
         const page = await (await fetch(url)).text();
-        assert.match(page, /\/create-issue-artifact follow github-virtual-universe-highlights\/attach-a-cheat-sheet-artifact\/instructions\.md/);
+        assert.match(page, /<pre>\/cheatsheet-artifact<\/pre>/);
+        // The learner is told the real tool is /create-issue-artifact.
+        assert.match(page, /<code>\/create-issue-artifact<\/code>/);
+        assert.doesNotMatch(page, /ghapp:/, "the exercise stays in one session");
         for (const name of ["preview.png", "astronaut.png"]) {
             const img = await fetch(new URL(name, url));
             assert.equal(img.status, 200, name);
@@ -79,8 +82,8 @@ test("the guide page points at /create-issue-artifact and serves its images", as
     }
 });
 
-test("start creates the issue in the fork and returns a session link carrying it", async () => {
-    const { canvas, gh } = await harness();
+test("start creates the issue in the fork and records it for the skill", async () => {
+    const { canvas, gh, home } = await harness();
     const { url } = await canvas.open({ instanceId: "t" });
     try {
         const res = await fetch(new URL("start", url), { method: "POST" });
@@ -89,22 +92,19 @@ test("start creates the issue in the fork and returns a session link carrying it
         assert.equal(data.fork, "learner/virtual-universe-26");
         assert.equal(data.number, 42);
 
-        const link = new URL(data.link);
-        assert.equal(link.protocol, "ghapp:");
-        assert.equal(link.searchParams.get("repo"), "learner/virtual-universe-26");
-        assert.equal(link.searchParams.get("issue"), "42");
-        // The new session opens this guide itself, and the prompt is what makes
-        // the session real so the issue actually attaches.
-        assert.equal(link.searchParams.get("canvas"), null, "the host refuses canvas alongside issue");
-        assert.match(link.searchParams.get("prompt"), /universe-cheatsheet-artifact/);
-        assert.match(link.searchParams.get("prompt"), /do not run `\/create-issue-artifact`/);
+        assert.equal(data.link, undefined, "no second session: the skill posts artifacts over REST");
+
+        // The skill reads this file to find the issue.
+        const state = JSON.parse(await readFile(join(home, "cache", "universe-cheatsheet-artifact", "issue.json"), "utf8"));
+        assert.equal(state.fork, "learner/virtual-universe-26");
+        assert.equal(state.number, 42);
 
         const create = gh.calls.find((a) => a[0] === "issue" && a[1] === "create");
         assert.equal(create[create.indexOf("-R") + 1], "learner/virtual-universe-26");
         assert.equal(create[create.indexOf("--title") + 1], "My GitHub Universe '26 cheat sheet");
         assert.match(create[create.indexOf("--attach") + 1], /astronaut\.png#Copilot astronaut$/);
         assert.match(create[create.indexOf("--body") + 1], /Badge Simulator/);
-        assert.match(create[create.indexOf("--body") + 1], /\/create-issue-artifact/);
+        assert.match(create[create.indexOf("--body") + 1], /\/cheatsheet-artifact/);
         // Readers who skipped Virtual Universe get pointed at the workshop.
         assert.match(create[create.indexOf("--body") + 1], /https:\/\/github\.com\/octodemo\/virtual-universe-26/);
 
@@ -117,28 +117,20 @@ test("start creates the issue in the fork and returns a session link carrying it
     }
 });
 
-test("the session the deep link opens starts at the skill step, the launching one does not", async () => {
+test("reopening the guide after setup reports the issue instead of repeating it", async () => {
     const home = mkdtempSync(join(tmpdir(), "cheatsheet-"));
     const first = await harness(fakeGh(), home);
-    const launcher = await first.canvas.open({ instanceId: "a", sessionId: "session-1" });
+    const launcher = await first.canvas.open({ instanceId: "a" });
     try {
-        // Before the issue exists, every copy of the guide shows step 1.
-        assert.equal(new URL(launcher.url).searchParams.get("ready"), null);
+        // Before the issue exists there is nothing to report.
+        assert.equal(new URL(launcher.url).searchParams.get("issue"), null);
         await (await fetch(new URL("start", launcher.url), { method: "POST" })).json();
 
-        // The session that made the issue keeps step 1; it is not linked to it.
-        const again = await first.canvas.open({ instanceId: "b", sessionId: "session-1" });
-        assert.equal(new URL(again.url).searchParams.get("ready"), null);
-        await first.canvas.onClose({ instanceId: "b" });
-
-        // The session the deep link opened is linked to the issue, so step 1 goes.
-        const second = await harness(fakeGh(), home);
-        const opened = await second.canvas.open({ instanceId: "c", sessionId: "session-2" });
-        const params = new URL(opened.url).searchParams;
-        assert.equal(params.get("ready"), "1");
+        const again = await first.canvas.open({ instanceId: "b" });
+        const params = new URL(again.url).searchParams;
         assert.equal(params.get("issue"), "learner/virtual-universe-26#42");
         assert.equal(params.get("url"), "https://github.com/learner/virtual-universe-26/issues/42");
-        await second.canvas.onClose({ instanceId: "c" });
+        await first.canvas.onClose({ instanceId: "b" });
     } finally {
         await first.canvas.onClose({ instanceId: "a" });
     }
@@ -153,7 +145,7 @@ test("an old GitHub CLI without --attach still gets a readable issue", async () 
         assert.equal(data.number, 42);
         const body = gh.bodies.get(42);
         assert.doesNotMatch(body, /<img/);
-        assert.match(body, /\/create-issue-artifact/);
+        assert.match(body, /\/cheatsheet-artifact/);
     } finally {
         await canvas.onClose({ instanceId: "t" });
     }

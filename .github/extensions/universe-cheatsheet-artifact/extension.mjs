@@ -2,10 +2,9 @@
 //
 // The canvas does the setup itself so the learner never waits on a chat turn.
 // Opening it runs the GitHub CLI here in the extension to find or create the
-// learner's fork, turn issues on, and open the cheat sheet issue.
-// It then hands back a ghapp://session/new deep link that carries the issue, so
-// the session that opens is already linked to it and /create-issue-artifact has
-// somewhere to attach. The learner runs that skill themselves.
+// learner's fork, turn issues on, and open the cheat sheet issue. It records
+// the issue in a state file that the /cheatsheet-artifact skill reads, so the
+// learner runs that skill in this same session.
 import { execFile } from "node:child_process";
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -16,7 +15,7 @@ import { joinSession, createCanvas } from "@github/copilot-sdk/extension";
 
 const UPSTREAM = "octodemo/virtual-universe-26";
 const TITLE = "My GitHub Universe '26 cheat sheet";
-const BODY = `Run \`/create-issue-artifact\` in the session opened for this issue.
+const BODY = `Run \`/cheatsheet-artifact\` in the session where you opened the guide.
 
 Copilot attaches your Universe '26 cheat sheet and its working notes here as
 **Artifacts**. It also opens the **Badge Simulator**, which records your
@@ -25,11 +24,11 @@ Universe badge and adds the GIF as a third artifact. \u2728
 Didn't make it to GitHub Virtual Universe '26? Work through the whole workshop
 at [${UPSTREAM}](https://github.com/${UPSTREAM}).`;
 const astronautImg = (url) => `<img src="${url}" alt="Copilot astronaut" width="120" align="right">`;
-// The deep link's kickoff prompt reopens this guide in the new session, passing
-// ready:true so that copy skips step 1, which is already done. The state file is
-// the fallback: deep-link query params never reach canvas input, so the issue is
-// recorded here instead
-// and any session other than the one that made it starts at the skill step.
+// Issue artifacts have a REST API, so nothing here needs a session linked to the
+// issue: the /cheatsheet-artifact skill reads this state file and posts to
+// repos/<fork>/issues/<n>/artifacts. That keeps the whole exercise in the one
+// session the learner already approved - no deep link, no second session, and
+// the guide stays in front the whole time.
 const CANVAS_ID = "universe-cheatsheet-artifact";
 const STATE = join(process.env.COPILOT_HOME || join(homedir(), ".copilot"), "cache", "universe-cheatsheet-artifact", "issue.json");
 
@@ -103,20 +102,8 @@ async function createIssue(fork) {
     return number;
 }
 
-// The host refuses `canvas` alongside `issue`, and `issue` is the whole point:
-// it is what /create-issue-artifact attaches to. A prompt is also what makes the
-// session real - a promptless deep link leaves it provisional with no issue. So
-// the prompt does both jobs: it materialises the issue-linked session and opens
-// this guide there, already past step 1.
-const KICKOFF = `Open the canvas \`${CANVAS_ID}\` with \`instanceId\` \`cheatsheet-guide\` and input \`{"ready": true}\`, then reply in one sentence telling me to run step 1 from that panel. Do nothing else: do not run \`/create-issue-artifact\`, create artifacts, or change any files.`;
-
-function sessionLink(fork, number) {
-    const q = new URLSearchParams({ repo: fork, issue: String(number), mode: "interactive", prompt: KICKOFF });
-    return `ghapp://session/new?${q}`;
-}
-
 let starting = null;
-function start(sessionId) {
+function start() {
     starting ??= (async () => {
         const login = await gh(["api", "user", "-q", ".login"]);
         if (!login) return { error: "Sign in to the GitHub CLI with gh auth login, then try again." };
@@ -141,20 +128,20 @@ function start(sessionId) {
             number = await createIssue(fork);
             if (!number) return { error: `Couldn't create the issue in ${fork}. Check that issues are enabled there.` };
         }
-        const result = { fork, number, issueUrl: `https://github.com/${fork}/issues/${number}`, link: sessionLink(fork, number) };
-        await writeState({ ...result, sessionId });
+        const result = { fork, number, issueUrl: `https://github.com/${fork}/issues/${number}` };
+        await writeState(result);
         return result;
     })().finally(() => { starting = null; });
     return starting;
 }
 
-async function startServer(sessionId) {
+async function startServer() {
     const server = createServer(async (req, res) => {
         if (req.method === "POST" && req.url === "/start") {
             res.setHeader("Content-Type", "application/json");
             res.setHeader("Cache-Control", "no-store");
             try {
-                return res.end(JSON.stringify(await start(sessionId)));
+                return res.end(JSON.stringify(await start()));
             } catch (error) {
                 console.error("Could not set up the cheat sheet issue:", error);
                 res.statusCode = 500;
@@ -178,24 +165,19 @@ session = await joinSession({
         createCanvas({
             id: CANVAS_ID,
             displayName: "Universe '26 cheat sheet artifact",
-            description: "Short Section 3 guide: create the cheat sheet issue in your fork, use /create-issue-artifact to attach a GitHub Universe cheat sheet to it, then Share a surprise badge GIF from the Badge Simulator.",
-            inputSchema: {
-                type: "object",
-                properties: { ready: { type: "boolean", description: "Set when the cheat sheet issue already exists and this session is linked to it, so the guide starts at the skill step." } },
-            },
+            description: "Short Section 3 guide: your cheat sheet issue is created in your fork, then you run the /cheatsheet-artifact skill to attach the cheat sheet and Copilot's notes, and Share a surprise badge GIF from the Badge Simulator.",
+            inputSchema: { type: "object", properties: {} },
             actions: [],
             open: async (ctx) => {
                 let entry = servers.get(ctx.instanceId);
                 if (!entry) {
-                    entry = await startServer(ctx.sessionId);
+                    entry = await startServer();
                     servers.set(ctx.instanceId, entry);
                 }
-                // The deep link opens this guide in the session it just made for
-                // the issue, so that copy starts at the skill step. The session
-                // the learner launched from keeps step 1.
+                // A session that already made the issue reopens straight on it,
+                // so the learner never repeats setup.
                 const state = await readState();
-                const ready = ctx.input?.ready === true || Boolean(state && state.sessionId !== ctx.sessionId);
-                const q = ready && state ? `?ready=1&issue=${encodeURIComponent(`${state.fork}#${state.number}`)}&url=${encodeURIComponent(state.issueUrl)}` : ready ? "?ready=1" : "";
+                const q = state ? `?issue=${encodeURIComponent(`${state.fork}#${state.number}`)}&url=${encodeURIComponent(state.issueUrl)}` : "";
                 return { title: "Attach a cheat sheet artifact", url: `${entry.url}${q}` };
             },
             onClose: async (ctx) => {

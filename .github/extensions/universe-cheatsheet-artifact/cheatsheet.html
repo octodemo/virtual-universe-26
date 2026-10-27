@@ -40,20 +40,20 @@ figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 <header>
   <div class="mono">Universe&#8217;26 &middot; Section 3 &middot; Final exercise</div>
   <h1>Attach a cheat sheet artifact</h1>
-  <p>Use the <code>/create-issue-artifact</code> skill to attach a cheat sheet of the top Virtual Universe updates to an issue.</p>
+  <p>Run the <code>/cheatsheet-artifact</code> skill to attach a cheat sheet of the top Virtual Universe updates to an issue.</p>
   <span class="pill" id="pill">4 min &middot; 2 steps</span>
   <div class="def"><b>Issue Artifacts</b> attach plans, notes, design docs, images and links directly to a GitHub issue, so important context doesn&#8217;t get lost in comments.</div>
 </header>
 <div class="block" id="setup"><div class="bh"><span id="setuptitle">Setting up your issue&hellip;</span><span><button class="send" id="setupbtn" hidden>Open the issue session</button></span></div>
-<pre id="startout">Finding your fork of octodemo/virtual-universe-26 &rarr; turning issues on &rarr; opening "My GitHub Universe '26 cheat sheet" &rarr; opening a session linked to it.</pre></div>
-<p class="lead" id="switch"><b>Switch to the new session</b> when it opens. This guide opens there too, ready for step 1.</p>
+<pre id="startout">Finding your fork of octodemo/virtual-universe-26 &rarr; turning issues on &rarr; opening "My GitHub Universe '26 cheat sheet".</pre></div>
 <ol class="steps">
   <li class="step">
     <h3>Run the skill</h3>
-    <p id="runlead">In the new issue session, run:</p>
-    <div class="block"><div class="bh"><span>Copilot chat &middot; issue session</span><span><button class="copy">Copy</button></span></div>
-<pre>/create-issue-artifact follow github-virtual-universe-highlights/attach-a-cheat-sheet-artifact/instructions.md</pre></div>
+    <p id="runlead">Right here in this session, run:</p>
+    <div class="block"><div class="bh"><span>Copilot chat</span><span><button class="copy">Copy</button></span></div>
+<pre>/cheatsheet-artifact</pre></div>
     <p>In about a minute Copilot adds the cheat sheet and a <b>How Copilot built this</b> artifact with its working notes to your issue, then opens the <b>Badge Simulator</b> with a surprise on your badge.</p>
+    <div class="def">Outside this workshop, reach for <code>/create-issue-artifact</code> &mdash; that&#8217;s the real tool for attaching artifacts. It attaches to the issue linked to the session you run it in, so we swapped in a custom skill here to keep the whole exercise in one session.</div>
   </li>
   <li class="step">
     <h3>Share your badge</h3>
@@ -69,29 +69,23 @@ function fallback(t){const a=document.createElement('textarea');a.value=t;docume
 document.querySelectorAll('.copy').forEach(b=>b.onclick=async()=>{const ok=await copy(b.closest('.block').querySelector('pre').textContent);b.textContent=ok===false?'Select and copy':'Copied';setTimeout(()=>b.textContent='Copy',1500)});
 // Setting up the issue is not a learner step: it runs on its own when the panel
 // opens. The strip above the steps just reports what is happening, and only
-// needs a button if something fails or the host blocks the deep link.
+// needs a button if something fails.
 const out=()=>document.getElementById('startout');
 const title=()=>document.getElementById('setuptitle');
 const btn=()=>document.getElementById('setupbtn');
 function offer(label,fn){const b=btn();b.hidden=false;b.disabled=false;b.classList.remove('sent');b.textContent=label;b.onclick=fn}
 let running=false;
+function done(issue,url){title().textContent='Your issue is ready';
+ out().innerHTML='Artifacts will go on <a href="'+url+'">'+issue+'</a>.'}
 async function startIssue(){if(running)return;running=true;btn().hidden=true;
  title().textContent='Setting up your issue\u2026';out().textContent='Finding your fork\u2026';
  try{const r=await fetch('start',{method:'POST'});const d=await r.json();
   if(d.error){title().textContent='Setup failed';out().textContent=d.error;running=false;offer('Try again',startIssue);return}
-  title().textContent='Opening your issue session\u2026';
-  out().innerHTML='Created <a href="'+d.issueUrl+'">'+d.fork+'#'+d.number+'</a>. Opening a session linked to it\u2026';
-  location.href=d.link;
-  // Some hosts refuse an unprompted ghapp:// navigation. Arm the link instead.
-  setTimeout(()=>{title().textContent='Your issue is ready';offer('Open the issue session',()=>{location.href=d.link})},3000)}
+  done(d.fork+'#'+d.number,d.issueUrl)}
  catch{title().textContent='Setup failed';out().textContent='Could not reach the extension.';running=false;offer('Try again',startIssue)}}
-// In the session the deep link just made, the issue already exists, so there is
-// nothing to set up: report the link and go straight to the skill.
-(function(){const q=new URLSearchParams(location.search);if(!q.get('ready')){startIssue();return}
- const issue=q.get('issue'),url=q.get('url');
- document.getElementById('switch').remove();
- title().textContent='Ready';
- out().innerHTML=issue&&url?'This session is linked to <a href="'+url+'">'+issue+'</a>.':'This session is linked to your cheat sheet issue.';
- const lead=document.getElementById('runlead');lead.textContent='Run:'})();
+// Reopening the panel after setup should not repeat it.
+(function(){const q=new URLSearchParams(location.search);const issue=q.get('issue'),url=q.get('url');
+ if(issue&&url){done(issue,url);return}
+ startIssue()})();
 </script>
 </body></html>
