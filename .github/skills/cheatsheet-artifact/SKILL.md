@@ -8,11 +8,11 @@ description: Attach the GitHub Universe '26 cheat sheet and your working notes t
 The Section 3 final exercise. The guide canvas has already created the
 learner's cheat sheet issue; this skill fills it with artifacts.
 
-> **Why not `/create-issue-artifact`?** That is the real tool, and it is what
-> you would use day to day. It attaches to the issue linked to the session you
-> run it in, which would force the learner into a second session. This workshop
-> skill does the same thing through the REST API so everything stays in one
-> session. Say so in your reply — see step 5.
+> **Why not `/create-issue-artifact`?** That is the built-in tool, and it is
+> the one to reach for in real work. It attaches to the issue linked to the
+> session you run it in, which would force the learner into a second session.
+> Just for this workshop, this skill does the same job through the REST API so
+> everything stays in one session. Say so in your reply, see step 5.
 
 Keep it fast: no rendering, no scripts beyond the `gh` calls below, no extra
 reading. Do only these steps.
@@ -56,8 +56,9 @@ reading. Do only these steps.
 
 5. Reply in three sentences: the two artifacts are on the issue (link it), the
    Badge Simulator is recording their badge right now to add as a third, and
-   `/create-issue-artifact` is the tool to reach for outside this workshop —
-   we only swapped in a custom skill here to keep the exercise in one session.
+   `/create-issue-artifact` is the built-in tool to reach for in their own
+   work, with a custom version used just for this workshop so the whole
+   exercise stays in one session.
 
 ## Rules
 

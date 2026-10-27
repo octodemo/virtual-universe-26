@@ -18,6 +18,9 @@ code{font-family:var(--mono);font-size:13px;background:#f6f8fa;padding:1px 5px;b
 .step h3{margin:4px 0 10px;font-size:19px;font-weight:600}
 .step p{margin:0 0 12px;color:var(--mute);font-size:15px;line-height:1.6}
 .step p b{color:var(--ink);font-weight:600}
+.step ul{margin:0 0 12px;padding-left:20px;color:var(--mute);font-size:15px;line-height:1.6}
+.step ul li{margin:0 0 6px}
+.step ul b{color:var(--ink);font-weight:600}
 a{color:var(--g)}
 .block{margin:0 0 14px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .bh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--mute);background:#eef6ef}
@@ -40,7 +43,7 @@ figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 <header>
   <div class="mono">Universe&#8217;26 &middot; Section 3 &middot; Final exercise</div>
   <h1>Attach a cheat sheet artifact</h1>
-  <p>Run the <code>/cheatsheet-artifact</code> skill to attach a cheat sheet of the top Virtual Universe updates to an issue.</p>
+  <p>Run the <code>/create-issue-artifact</code> skill to attach a cheat sheet of the top Virtual Universe updates to an issue.</p>
   <span class="pill" id="pill">4 min &middot; 2 steps</span>
   <div class="def"><b>Issue Artifacts</b> attach plans, notes, design docs, images and links directly to a GitHub issue, so important context doesn&#8217;t get lost in comments.</div>
 </header>
@@ -49,15 +52,20 @@ figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 <ol class="steps">
   <li class="step">
     <h3>Run the skill</h3>
-    <p id="runlead">Right here in this session, run:</p>
+    <p><code>/create-issue-artifact</code> is a built-in skill you can use in GitHub Copilot App to attach artifacts to the issue linked to your session. For this workshop we created a custom <code>cheatsheet-artifact</code> skill that uses the same command, but includes a few extra steps.</p>
+    <p id="runlead">Copy and paste the following command in the chat to create the artifacts:</p>
     <div class="block"><div class="bh"><span>Copilot chat</span><span><button class="copy">Copy</button></span></div>
 <pre>/cheatsheet-artifact</pre></div>
-    <p>In about a minute Copilot adds the cheat sheet and a <b>How Copilot built this</b> artifact with its working notes to your issue, then opens the <b>Badge Simulator</b> with a surprise on your badge.</p>
-    <div class="def">Outside this workshop, reach for <code>/create-issue-artifact</code> &mdash; that&#8217;s the real tool for attaching artifacts. It attaches to the issue linked to the session you run it in, so we swapped in a custom skill here to keep the whole exercise in one session.</div>
+    <p>In about a minute Copilot:</p>
+    <ul>
+      <li>reads the Universe recap in this repository and writes your cheat sheet from it</li>
+      <li>adds that cheat sheet and a <b>How Copilot built this</b> artifact with its working notes to your issue</li>
+      <li>opens the <b>Virtual Universe Badge Simulator</b> with a surprise on your badge</li>
+    </ul>
   </li>
   <li class="step">
     <h3>Share your badge</h3>
-    <p>Press <b>Share</b> to save a GIF of your Virtual Universe badge to your Downloads folder and post it with the hashtag <b>#virtualuniverse26</b> to connect with the rest of the virtual community &#129489;&#127999;&#8205;&#128640;. Keep playing in the <a href="https://badger.github.io/simulator/">online badge simulator</a>.</p>
+    <p>Press <b>Share</b> to save a GIF of your Virtual Universe badge to your Downloads folder and post it with the hashtag <b>#virtualuniverse26</b> to connect with the rest of the virtual community &#129489;&#127999;&#8205;&#128640;. Check out the full online <a href="https://badger.github.io/virtual/">Virtual Universe Badge</a> and click on the top right button for a tiny recap!</p>
     <figure><img src="preview.png" alt="Example cheat sheet with The Modern GitHub Experience and Agentic Software Development with GitHub Copilot features"><figcaption>Artifact 1 &middot; your cheat sheet. Artifact 2 &middot; how Copilot built it. Artifact 3 is a surprise &#10024;</figcaption></figure>
   </li>
 </ol>

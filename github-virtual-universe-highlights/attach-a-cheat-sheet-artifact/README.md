@@ -12,7 +12,7 @@ you will create an Issue Artifact.
 > links — directly to a GitHub issue. Instead of important context living in
 > scattered comments or external tools.
 
-In this section you'll run the `/cheatsheet-artifact` skill to attach a
+In this section you'll run the `/create-issue-artifact` skill to attach a
 cheat sheet of the top updates from the Virtual Universe practical sessions to
 an issue.
 
@@ -28,7 +28,12 @@ Opening the guide sets your issue up on its own. The canvas finds your fork of
 on issues, and opens **My GitHub Universe '26 cheat sheet** there. You don't
 need your fork checked out locally, and no Copilot turn is involved.
 
-Then, in the same session, run:
+`/create-issue-artifact` is a built-in skill you can use in GitHub Copilot App
+to attach artifacts to the issue linked to your session. For this workshop we
+created a custom `cheatsheet-artifact` skill that uses the same command, but
+includes a few extra steps.
+
+Copy and paste the following command in the chat to create the artifacts:
 
 ```text
 /cheatsheet-artifact
@@ -36,25 +41,22 @@ Then, in the same session, run:
 
 In about a minute Copilot:
 
-- opens the **Badge Simulator** with a surprise on your badge, which starts
-  recording straight away and adds the GIF to your issue as a third artifact,
-  **Your Virtual Universe 26 badge**
-- adds the **GitHub Universe 2026 cheat sheet** to your issue as an artifact
+- reads the Universe recap in this repository and writes your cheat sheet from
+  it, then adds it to your issue as the **GitHub Universe 2026 cheat sheet**
 - adds a second artifact, **How Copilot built this**, with its working notes
   from the session
-
-> Outside this workshop, reach for `/create-issue-artifact` — that's the real
-> tool for attaching artifacts. It attaches to the issue linked to the session
-> you run it in, so we swapped in a custom skill here to keep the whole
-> exercise in one session.
+- opens the **Virtual Universe Badge Simulator** with a surprise on your badge,
+  which starts recording straight away and adds the GIF to your issue as a
+  third artifact, **Your Virtual Universe 26 badge**
 
 ## 2. Share your badge
 
 Open the issue and select **Artifacts** to see all three. Press **Share** in
 the simulator to save a GIF of your Virtual Universe badge to your Downloads
 folder, and post it with the hashtag **#virtualuniverse26** to connect with the
-rest of the virtual community 🧑🏿‍🚀. Keep playing in the
-[online badge simulator](https://badger.github.io/simulator/).
+rest of the virtual community 🧑🏿‍🚀. Check out the full online
+[Virtual Universe Badge](https://badger.github.io/virtual/) and click on the
+top right button for a tiny recap!
 
 ## What you'll get
 
