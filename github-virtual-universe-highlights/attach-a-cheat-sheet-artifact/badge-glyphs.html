@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Renders the Mona Sans glyph atlas the universe_congrats badge app uses to
+     draw the learner's @login. 64 characters in an 8x8 grid of 32x40 cells,
+     each glyph 4px from its cell's left edge. Usage (headless Chrome):
+       screenshot: --window-size=256,320 --default-background-color=00000000 badge-glyphs.html#size=22
+       advances:   --dump-dom badge-glyphs.html#size=22   (JSON in #advances)
+     Then run badge-png.py on the screenshot. -->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,200..900&display=block">
+<style>
+  html, body { margin: 0; background: transparent; }
+  body { width: 256px; height: 320px; overflow: hidden; position: relative; }
+  .cell { position: absolute; width: 32px; height: 40px; display: flex; align-items: center; }
+  span { margin-left: 4px; font-family: "Mona Sans", sans-serif; font-weight: 700; font-stretch: 112%;
+         white-space: pre; line-height: 1; letter-spacing: 0.01em; color: #fff; }
+  #advances { display: none; }
+</style>
+</head>
+<body>
+<pre id="advances"></pre>
+<script>
+  const chars = "@-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const size = Number(new URLSearchParams(location.hash.slice(1)).get("size") || 22);
+  const spans = [...chars].map((ch, i) => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.style.left = (i % 8) * 32 + "px";
+    cell.style.top = Math.floor(i / 8) * 40 + "px";
+    const span = document.createElement("span");
+    span.textContent = ch;
+    span.style.fontSize = size + "px";
+    cell.append(span);
+    document.body.append(cell);
+    return span;
+  });
+  document.fonts.ready.then(() => {
+    document.getElementById("advances").textContent =
+      JSON.stringify(spans.map(s => Math.round(s.getBoundingClientRect().width)));
+  });
+</script>
+</body>
+</html>

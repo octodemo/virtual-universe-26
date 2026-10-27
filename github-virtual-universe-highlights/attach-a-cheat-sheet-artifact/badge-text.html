@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- Renders one line of Mona Sans text as a transparent 320px-wide PNG for the
+     universe_congrats badge app. Usage (headless Chrome screenshot):
+     --window-size=320,200 badge-text.html#text=@octocat&size=22&weight=700&style=white
+     The line sits in the top 40px band; the app reads it with spritesheet(1, 5). -->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,200..900&display=block">
+<style>
+  html, body { margin: 0; background: transparent; }
+  body { width: 320px; overflow: hidden; }
+  .band { height: 40px; display: flex; align-items: center; justify-content: center; }
+  span { font-family: "Mona Sans", sans-serif; font-stretch: 112%; white-space: nowrap; line-height: 1; letter-spacing: 0.01em; }
+  .white { color: #fff; }
+  .lavender { color: #c9c3ff; }
+  .green { color: #5fed83; }
+  .purple { color: #b58cff; }
+</style>
+</head>
+<body>
+<div class="band"><span id="t"></span></div>
+<script>
+  const p = new URLSearchParams(location.hash.slice(1));
+  const t = document.getElementById("t");
+  t.textContent = p.get("text") || "@you";
+  t.className = p.get("style") || "white";
+  t.style.fontWeight = p.get("weight") || "700";
+  let size = Number(p.get("size") || 22);
+  t.style.fontSize = size + "px";
+  document.fonts.ready.then(() => {
+    while (t.scrollWidth > 308 && size > 8) t.style.fontSize = --size + "px";
+  });
+</script>
+</body>
+</html>

@@ -23,10 +23,14 @@ a{color:var(--g)}
 .bh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 6px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--mute);background:#eef6ef}
 pre{margin:0;padding:14px;font-family:var(--mono);font-size:12.5px;line-height:1.6;white-space:pre-wrap;color:var(--g);font-weight:600}
 .copy,.send{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:3px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+[hidden]{display:none!important}
 .send{background:var(--g);border-color:var(--g);color:#fff;font-family:"Mona Sans",-apple-system,"Segoe UI",sans-serif;font-weight:600}
 .send.sent{background:var(--mute);border-color:var(--mute)}
 .copy:focus-visible,.send:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .note{margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--g);background:#f6f8fa;font-size:14px;line-height:1.5}
+#setup{margin-top:18px}
+.lead{margin:0 0 4px;color:var(--mute);font-size:15px;line-height:1.6}
+.lead b{color:var(--ink);font-weight:600}
 figure{margin:0 0 14px}figure img{display:block;max-width:100%;border:1px solid var(--line);border-radius:10px}
 figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 .done{margin-top:24px;padding:18px 20px;border:2px solid var(--g);border-radius:8px;font-size:16px;line-height:1.5}
@@ -37,28 +41,24 @@ figcaption{font-size:13px;color:var(--mute);margin-top:6px}
   <div class="mono">Universe&#8217;26 &middot; Section 3 &middot; Final exercise</div>
   <h1>Attach a cheat sheet artifact</h1>
   <p>Use the <code>/create-issue-artifact</code> skill to attach a cheat sheet of the top Virtual Universe updates to an issue.</p>
-  <span class="pill">5 min &middot; 3 steps</span>
+  <span class="pill" id="pill">4 min &middot; 2 steps</span>
   <div class="def"><b>Issue Artifacts</b> attach plans, notes, design docs, images and links directly to a GitHub issue, so important context doesn&#8217;t get lost in comments.</div>
 </header>
+<div class="block" id="setup"><div class="bh"><span id="setuptitle">Setting up your issue&hellip;</span><span><button class="send" id="setupbtn" hidden>Open the issue session</button></span></div>
+<pre id="startout">Finding your fork of octodemo/virtual-universe-26 &rarr; turning issues on &rarr; opening "My GitHub Universe '26 cheat sheet" &rarr; opening a session linked to it.</pre></div>
+<p class="lead" id="switch"><b>Switch to the new session</b> when it opens. This guide opens there too, ready for step 1.</p>
 <ol class="steps">
   <li class="step">
-    <h3>Open an issue session</h3>
-    <p><code>/create-issue-artifact</code> attaches to the issue linked to the session you run it in. Ask Copilot to create the issue in your fork and open a session for it.</p>
-    <div class="block"><div class="bh"><span>Copilot chat</span><span><button class="send" data-id="issue">Send to chat</button> <button class="copy">Copy</button></span></div>
-<pre>Create an issue titled "My GitHub Universe '26 cheat sheet" in my fork and open a session for it</pre></div>
-    <p><b>Switch to the new session</b> when Copilot opens it.</p>
-  </li>
-  <li class="step">
     <h3>Run the skill</h3>
-    <p>In the new issue session, run:</p>
+    <p id="runlead">In the new issue session, run:</p>
     <div class="block"><div class="bh"><span>Copilot chat &middot; issue session</span><span><button class="copy">Copy</button></span></div>
 <pre>/create-issue-artifact follow github-virtual-universe-highlights/attach-a-cheat-sheet-artifact/instructions.md</pre></div>
-    <p>Copilot reads the recap pages, designs a one-page cheat sheet in the Universe theme, makes a &#10024;surprise card&#10024;, and adds both to your issue as artifacts.</p>
+    <p>In about a minute Copilot adds the cheat sheet and a <b>How Copilot built this</b> artifact with its working notes to your issue, then opens the <b>Badge Simulator</b> with a surprise on your badge.</p>
   </li>
   <li class="step">
-    <h3>Open your issue</h3>
-    <p>Open the issue and select <b>Artifacts</b>. Read the surprise card to find an easter egg in your <a href="https://leereilly.net/badger.github.io/virtual/">Virtual GitHub Universe Badge</a>.</p>
-    <figure><img src="preview.png" alt="Example cheat sheet with The Modern GitHub Experience and Agentic Software Development with GitHub Copilot features"><figcaption>Artifact 1 &middot; your cheat sheet. Artifact 2 is a surprise &#10024;</figcaption></figure>
+    <h3>Share your badge</h3>
+    <p>Press <b>Share</b> to save a GIF of your Virtual Universe badge to your Downloads folder and post it with the hashtag <b>#virtualuniverse26</b> to connect with the rest of the virtual community &#129489;&#127999;&#8205;&#128640;. Keep playing in the <a href="https://badger.github.io/simulator/">online badge simulator</a>.</p>
+    <figure><img src="preview.png" alt="Example cheat sheet with The Modern GitHub Experience and Agentic Software Development with GitHub Copilot features"><figcaption>Artifact 1 &middot; your cheat sheet. Artifact 2 &middot; how Copilot built it. Artifact 3 is a surprise &#10024;</figcaption></figure>
   </li>
 </ol>
 <div class="done"><p>&#127881; <b>That&#8217;s the end of the workshop.</b> Thanks for building with us! See the <a href="https://github.com/events/universe/recap/">Universe recap</a> for more.</p></div>
@@ -67,6 +67,31 @@ figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 function copy(t){if(navigator.clipboard)return navigator.clipboard.writeText(t).then(()=>true,()=>fallback(t));return Promise.resolve(fallback(t))}
 function fallback(t){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}
 document.querySelectorAll('.copy').forEach(b=>b.onclick=async()=>{const ok=await copy(b.closest('.block').querySelector('pre').textContent);b.textContent=ok===false?'Select and copy':'Copied';setTimeout(()=>b.textContent='Copy',1500)});
-document.querySelectorAll('.send').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await fetch('try',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.dataset.id})});b.textContent=r.ok?'Sent':'Try again'}catch{b.textContent='Try again'}b.classList.toggle('sent',b.textContent==='Sent');b.disabled=b.textContent==='Sent'});
+// Setting up the issue is not a learner step: it runs on its own when the panel
+// opens. The strip above the steps just reports what is happening, and only
+// needs a button if something fails or the host blocks the deep link.
+const out=()=>document.getElementById('startout');
+const title=()=>document.getElementById('setuptitle');
+const btn=()=>document.getElementById('setupbtn');
+function offer(label,fn){const b=btn();b.hidden=false;b.disabled=false;b.classList.remove('sent');b.textContent=label;b.onclick=fn}
+let running=false;
+async function startIssue(){if(running)return;running=true;btn().hidden=true;
+ title().textContent='Setting up your issue\u2026';out().textContent='Finding your fork\u2026';
+ try{const r=await fetch('start',{method:'POST'});const d=await r.json();
+  if(d.error){title().textContent='Setup failed';out().textContent=d.error;running=false;offer('Try again',startIssue);return}
+  title().textContent='Opening your issue session\u2026';
+  out().innerHTML='Created <a href="'+d.issueUrl+'">'+d.fork+'#'+d.number+'</a>. Opening a session linked to it\u2026';
+  location.href=d.link;
+  // Some hosts refuse an unprompted ghapp:// navigation. Arm the link instead.
+  setTimeout(()=>{title().textContent='Your issue is ready';offer('Open the issue session',()=>{location.href=d.link})},3000)}
+ catch{title().textContent='Setup failed';out().textContent='Could not reach the extension.';running=false;offer('Try again',startIssue)}}
+// In the session the deep link just made, the issue already exists, so there is
+// nothing to set up: report the link and go straight to the skill.
+(function(){const q=new URLSearchParams(location.search);if(!q.get('ready')){startIssue();return}
+ const issue=q.get('issue'),url=q.get('url');
+ document.getElementById('switch').remove();
+ title().textContent='Ready';
+ out().innerHTML=issue&&url?'This session is linked to <a href="'+url+'">'+issue+'</a>.':'This session is linked to your cheat sheet issue.';
+ const lead=document.getElementById('runlead');lead.textContent='Run:'})();
 </script>
 </body></html>

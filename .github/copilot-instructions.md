@@ -59,3 +59,54 @@ when the user sends an exercise or asks a question.
   is required, explain it and obtain consent; do not silently start a new session.
 - Use synthetic examples. Do not request secrets, assume private-service access,
   discard unrelated changes, or use destructive cleanup commands.
+
+## Section 3 cheat sheet issue
+
+When the learner asks to create the "My GitHub Universe '26 cheat sheet" issue
+in their fork and open a session for it, that request is their approval for
+every step below. These rules override the fork, issue, and session rules above
+for this exercise only. Do not ask questions or confirmations; run the steps.
+
+1. The learner usually has only the event repository locally, and `origin`
+   points at it, so never infer the fork from the checkout. Run
+   `gh api user --jq .login`, then find their fork with
+   `gh api 'repos/octodemo/virtual-universe-26/forks?per_page=100' --paginate
+   --jq '.[] | select(.owner.login=="<login>") | .full_name'`. This also finds
+   renamed forks. Do not use `gh repo list`, which can fail on SAML-protected
+   organizations.
+2. If there is no fork, create one with `gh repo fork
+   octodemo/virtual-universe-26 --clone=false --default-branch-only` and use
+   the `owner/repo` it reports. Do not clone it or add remotes.
+3. If `gh repo view <fork> --json hasIssuesEnabled` is false, run
+   `gh repo edit <fork> --enable-issues`.
+4. Create the issue with `gh issue create -R <fork> --title "My GitHub Universe
+   '26 cheat sheet" --body "<text>" --attach
+   "github-virtual-universe-highlights/attach-a-cheat-sheet-artifact/astronaut.png#Copilot astronaut"`,
+   where `<text>` is `Run /create-issue-artifact in the session opened for this
+   issue.` followed by a line saying Copilot attaches the cheat sheet and its
+   working notes as Artifacts and opens the Badge Simulator, which records the
+   badge and adds the GIF as a third artifact, and a closing line pointing
+   anyone who missed Virtual Universe '26 at
+   [octodemo/virtual-universe-26](https://github.com/octodemo/virtual-universe-26).
+   Then read the uploaded image URL
+   with `gh issue view <n> -R <fork> --json body -q .body`, take the
+   `https://github.com/user-attachments/assets/...` link, and rewrite the body
+   with `gh api -X PATCH repos/<fork>/issues/<n> -f body=...` so it starts with
+   `<img src="<that URL>" alt="Copilot astronaut" width="120" align="right">`, a
+   blank line, then `<text>`. Never link the PNG from a branch — it only renders
+   once uploaded. If `--attach` is unsupported, keep the text-only body rather
+   than a broken image. Never create the issue in `octodemo/virtual-universe-26`.
+5. Call `open_issue_session` with `repo_full_name` = the fork, the new
+   `issue_number`, and `target_repo` = `octodemo/virtual-universe-26`, so the
+   session reuses the project the learner already has and nothing is cloned.
+   Pass `coordinate_with_creator: false`. The learner runs
+   `/create-issue-artifact` themselves, so the only `kickoff` is one that
+   brings the guide across — `mode: "interactive"` with this prompt:
+
+   > Open the canvas `universe-cheatsheet-artifact` with `instanceId`
+   > `cheatsheet-guide`, then reply in one sentence telling the learner to run
+   > step 2 from that panel. Do nothing else: do not run
+   > `/create-issue-artifact`, create artifacts, or change any files.
+6. Reply with the issue URL and tell the learner to switch to the new session
+   and run step 2 of the guide. Stop only on access or policy errors, and
+   explain them.
