@@ -401,22 +401,19 @@ async function requireClient(inst, timeoutMs = 15000) {
         throw new Error("The Badge Simulator canvas is not connected. Open it (or re-run open_canvas with the same instanceId) and keep it visible, then try again.");
     }
 }
-// A hidden panel stops rendering, so the 3D badge can't be recorded. Wait (and say so)
-// instead of failing the moment the learner is looking at something else.
 function hasVisibleClient(inst) {
     const now = Date.now();
     return [...inst.statsBy.values()].some((e) => !e.paused && now - e.at < 5000);
 }
-async function requireVisibleClient(inst, timeoutMs = 120000) {
+// A hidden panel pauses the app, so its screen would come out unlit. Wait a while for
+// the panel to come to the front, then capture anyway rather than failing outright:
+// the badge itself is drawn on demand and renders either way.
+async function preferVisibleClient(inst, timeoutMs = 60000) {
     await requireClient(inst);
     if (hasVisibleClient(inst)) return;
-    broadcast(inst, { type: "share-status", text: "Open the Badge Simulator tab so your badge can finish…" });
+    broadcast(inst, { type: "share-status", text: "Open the Badge Simulator tab to finish your badge…" });
     const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-        await sleep(250);
-        if (hasVisibleClient(inst)) return;
-    }
-    throw new Error("The Badge Simulator panel stayed hidden, so the badge never rendered. Bring the panel to the front and try again.");
+    while (!hasVisibleClient(inst) && Date.now() < deadline) await sleep(250);
 }
 
 // ---- agent actions ------------------------------------------------------------------
@@ -479,17 +476,34 @@ function parseIssue(value) {
 }
 // The badge GIF is tall, so the artifact shows it at a comfortable width, under a
 // download link and the hashtag to post it with.
-function shareBody(gif, login) {
+function shareBody(gif, login, download) {
     const who = login ? `@${login}` : "you";
     const alt = `Astronaut Mona flies across a GitHub Universe badge that says Congratulations ${who}! You finished Virtual Universe '26`;
     const astronaut = "\u{1F9D1}\u{1F3FF}\u200D\u{1F680}";
     return [
-        `### \u2B07\uFE0F [Download your badge GIF](${gif})`,
+        `### \u2B07\uFE0F [Download your badge GIF](${download ?? gif})`,
         "",
         `Post it on social with the hashtag **#virtualuniverse26** to connect with the rest of the virtual community ${astronaut}`,
         "",
         `<img src="${gif}" alt="${alt}" width="300">`,
     ].join("\n");
+}
+// GitHub strips the download attribute and serves uploaded images inline, so the only
+// link that actually saves the GIF is a release asset: those come back as an
+// attachment. The release is tucked away in the learner's own fork.
+const badgeReleaseTag = "virtual-universe-26-badge";
+const badgeFileName = "virtual-universe-26-badge.gif";
+async function uploadToRelease({ repo }, gifPath) {
+    const file = join(dirname(gifPath), badgeFileName);
+    if (file !== gifPath) copyFileSync(gifPath, file);
+    const notes = "Your Virtual Universe '26 badge, ready to download and share.";
+    try {
+        await gh(["release", "view", badgeReleaseTag, "-R", repo]);
+        await gh(["release", "upload", badgeReleaseTag, file, "-R", repo, "--clobber"]);
+    } catch {
+        await gh(["release", "create", badgeReleaseTag, file, "-R", repo, "-t", "Your Virtual Universe '26 badge", "-n", notes]);
+    }
+    return `https://github.com/${repo}/releases/download/${badgeReleaseTag}/${badgeFileName}`;
 }
 // Saves the GIF to the learner's Downloads folder and shows it in their file
 // manager, so they can post it anywhere they like.
@@ -537,8 +551,11 @@ async function doShare(inst, input = {}) {
     inst.sharing = true;
     try {
         step("Making your badge GIF…");
+        await waitForFrames(inst);
         let rec = await doRecord(inst, { duration_ms: 4000, fps: 12, view: "badge", label: "share", sheet: false });
-        // The 3D badge can come up empty on some GPUs; the app screen is a fine stand-in.
+        // The learner wants the whole badge, so try it again before settling for the
+        // screen on its own.
+        if (!rec.gif) rec = await doRecord(inst, { duration_ms: 3000, fps: 12, view: "badge", label: "share", sheet: false });
         if (!rec.gif) rec = await doRecord(inst, { duration_ms: 2500, fps: 12, view: "screen", label: "share", sheet: false });
         if (!rec.gif) throw new Error(rec.error ?? "Your badge GIF could not be made.");
         inst.lastGif = rec.gif;
@@ -548,7 +565,10 @@ async function doShare(inst, input = {}) {
                 step("Adding your badge GIF to your issue…");
                 const gif = await withRetry("upload", () => uploadToIssue(inst.issue, rec.gif, "Your Virtual Universe '26 badge"));
                 const login = await githubLogin();
-                artifact = await withRetry("artifact", () => upsertArtifact(inst.issue, shareArtifactName, shareBody(gif, login)));
+                // A release asset is a nicety: keep the artifact even if it can't be made.
+                let download = null;
+                try { download = await withRetry("release", () => uploadToRelease(inst.issue, rec.gif)); } catch { download = null; }
+                artifact = await withRetry("artifact", () => upsertArtifact(inst.issue, shareArtifactName, shareBody(gif, login, download)));
             } catch (error) { issueError = `couldn't add it to ${inst.issue.repo}#${inst.issue.number}: ${ghError(error)}`; }
         }
         const saved = download ? saveGif(rec.gif) : null;
@@ -563,7 +583,7 @@ async function doShare(inst, input = {}) {
 }
 async function recordScreen(inst, input) {
     await requireClient(inst);
-    if (input.view === "badge") await requireVisibleClient(inst);
+    if (input.view === "badge") await preferVisibleClient(inst);
     if (input.restart) { doReload(inst, false); await waitForRun(inst); }
     const steps = Array.isArray(input.steps) ? input.steps : [];
     const fps = Math.max(1, Math.min(30, Number(input.fps ?? 15) || 15));
@@ -688,6 +708,13 @@ function doReload(inst, restartRuntime) {
     inst.state = "";
     clearLog(inst);
     broadcast(inst, restartRuntime ? { type: "restart" } : { type: "reload", app: inst.app, revision: inst.revision });
+}
+// Sharing starts as soon as the canvas opens, so give the app time to paint before
+// capturing: an unlit screen on the badge is worse than a couple of seconds' wait.
+async function waitForFrames(inst, timeoutMs = 20000) {
+    const painted = () => [...inst.statsBy.values()].some((e) => (e.frames ?? 0) > 1);
+    const deadline = Date.now() + timeoutMs;
+    while (!painted() && Date.now() < deadline) await sleep(250);
 }
 async function waitForRun(inst, timeoutMs = 15000) {
     const since = cursorOf(inst);

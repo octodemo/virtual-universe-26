@@ -403,7 +403,7 @@ window.setInterval(() => {
 type Recording = {
   id: string; interval: number; start: number; last: number; hash: number; rendered: number
   fps: number; scale: number; captureVideo: boolean; stopping: boolean; badge?: BadgeCrop
-  captured: number; ticker: number
+  captured: number; ticker: number; timer: number
   uploads: Promise<unknown>[]; video?: { canvas: HTMLCanvasElement; recorder?: MediaRecorder; chunks: Blob[]; error?: string }
 }
 let recording: Recording | null = null
@@ -464,7 +464,14 @@ function recordFrame(force = false, lastResort = false) {
 // everything around the model transparent, so its alpha gives the bounding box.
 type BadgeCrop = { x: number; y: number; w: number; h: number; width: number; height: number }
 const stage = { width: 760, height: 1100 }
-const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+// A hidden panel stops animation frames but keeps timers, and the 3D badge is drawn
+// on demand, so never let a wait hang on requestAnimationFrame alone.
+const nextFrame = () => new Promise<void>(resolve => {
+  let done = false
+  const finish = () => { if (!done) { done = true; window.clearTimeout(timer); resolve() } }
+  const timer = window.setTimeout(finish, 120)
+  requestAnimationFrame(() => requestAnimationFrame(finish))
+})
 async function enterBadgeStage() {
   root.dataset.recordingBadge = 'true'
   host.style.width = `${stage.width}px`
@@ -474,19 +481,7 @@ async function enterBadgeStage() {
   controls.full.click()
   await nextFrame()
 }
-// The panel pauses rendering when it's hidden, so wait for it to come back rather
-// than failing the recording.
-function whenVisible(timeoutMs = 120_000) {
-  if (!document.hidden) return Promise.resolve(true)
-  return new Promise<boolean>((resolve) => {
-    const done = (ok: boolean) => { document.removeEventListener('visibilitychange', onChange); window.clearTimeout(timer); resolve(ok) }
-    const onChange = () => { if (!document.hidden) done(true) }
-    const timer = window.setTimeout(() => done(false), timeoutMs)
-    document.addEventListener('visibilitychange', onChange)
-  })
-}
 async function whenModelReady(timeoutMs = 30_000) {
-  if (!await whenVisible()) return false
   const deadline = performance.now() + timeoutMs
   while (root.dataset.model !== 'ready' && performance.now() < deadline) await nextFrame()
   return root.dataset.model === 'ready'
@@ -525,17 +520,22 @@ async function startRecording(id: string, fps: number, video: boolean, scale: nu
     if (!badge) { leaveBadgeStage(); void post('/api/record-done', { id, error: 'Could not find the 3D badge to record' }); return }
   }
   const now = performance.now()
-  recording = { id, interval: 1000 / fps, start: now, last: -Infinity, hash: -1, rendered: 0, captured: 0, ticker: 0, uploads: [], fps, scale, captureVideo: video && view !== 'badge', stopping: false, badge }
+  recording = { id, interval: 1000 / fps, start: now, last: -Infinity, hash: -1, rendered: 0, captured: 0, ticker: 0, timer: 0, uploads: [], fps, scale, captureVideo: video && view !== 'badge', stopping: false, badge }
   recordFrame(true)
   // App frames alone are not a reliable clock: an app that finishes its animation,
   // boots slowly, or just paints a still screen would otherwise capture nothing.
   // Sample on our own animation frames instead and let the interval throttle.
+  // Animation frames stop while the panel is hidden, so a timer keeps sampling too.
   const tick = () => {
     if (recording?.id !== id || recording.stopping) return
     recordFrame()
     recording.ticker = requestAnimationFrame(tick)
   }
   recording.ticker = requestAnimationFrame(tick)
+  recording.timer = window.setInterval(() => {
+    if (recording?.id !== id || recording.stopping) return
+    recordFrame()
+  }, Math.max(40, recording.interval))
 }
 function startRecordingVideo(rec: Recording) {
   const canvas = document.createElement('canvas')
@@ -558,6 +558,7 @@ async function stopRecording(id: string) {
   const rec = recording
   if (!rec || rec.id !== id || rec.stopping) { void post('/api/record-done', { id, error: 'No active recording in this canvas' }); return }
   cancelAnimationFrame(rec.ticker)
+  window.clearInterval(rec.timer)
   recordFrame(true)
   // A GIF of one still frame beats no GIF at all, so take a last unthrottled shot
   // if nothing landed. The badge is on screen by now even if the app never painted.
