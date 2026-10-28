@@ -477,11 +477,19 @@ function parseIssue(value) {
     const m = text.match(/^(?:https:\/\/github\.com\/)?([\w.-]+\/[\w.-]+)(?:#|\/issues\/)(\d+)\/?$/);
     return m ? { repo: m[1], number: Number(m[2]) } : null;
 }
-// The badge GIF is tall, so the artifact shows it at a comfortable width.
+// The badge GIF is tall, so the artifact shows it at a comfortable width, under a
+// download link and the hashtag to post it with.
 function shareBody(gif, login) {
     const who = login ? `@${login}` : "you";
     const alt = `Astronaut Mona flies across a GitHub Universe badge that says Congratulations ${who}! You finished Virtual Universe '26`;
-    return `<img src="${gif}" alt="${alt}" width="300">`;
+    const astronaut = "\u{1F9D1}\u{1F3FF}\u200D\u{1F680}";
+    return [
+        `### \u2B07\uFE0F [Download your badge GIF](${gif})`,
+        "",
+        `Post it on social with the hashtag **#virtualuniverse26** to connect with the rest of the virtual community ${astronaut}`,
+        "",
+        `<img src="${gif}" alt="${alt}" width="300">`,
+    ].join("\n");
 }
 // Saves the GIF to the learner's Downloads folder and shows it in their file
 // manager, so they can post it anywhere they like.
@@ -912,7 +920,7 @@ session = await joinSession({
                 },
                 {
                     name: "share",
-                    description: "Same as the Share button: record the whole 3D badge for 4 seconds as a GIF and, if the canvas was opened with {issue}, upload it and add a \"Your Virtual Universe 26 badge\" artifact (just the GIF) to that issue, then save the GIF to the learner's Downloads folder. The canvas already does this automatically when it opens for an issue. Returns the GIF path and artifact URL.",
+                    description: "Same as the Share button: record the whole 3D badge for 4 seconds as a GIF and, if the canvas was opened with {issue}, upload it and add a \"Your Virtual Universe 26 badge\" artifact (the GIF, a download link and the hashtag to post it with) to that issue, then save the GIF to the learner's Downloads folder. The canvas already does this automatically when it opens for an issue. Returns the GIF path and artifact URL.",
                     inputSchema: { type: "object", properties: { download: { type: "boolean", description: "Save the GIF to Downloads and reveal it (default true)" } } },
                     handler: async (ctx) => {
                         const inst = instanceFor(ctx);
