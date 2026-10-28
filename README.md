@@ -24,7 +24,7 @@ Click the button below to open a pre-configured Codespace with all the dependenc
 
 ### Manage your open source project
 
-Are you an open source maintainer? Check out the settings we've shipped to help you manage your projects and keep AI generated contributions under control. You can also join the community for to connect with other maintainers and get direct support from our team.  
+Are you an open source maintainer? Check out the settings we've shipped to help you manage your projects and keep AI generated contributions under control. You can also join the community to connect with other maintainers and get direct support from our team.  
 
 [![Join the Maintainer Community](https://img.shields.io/badge/Join_the_Maintainer_Community-0969DA?style=flat&logo=github&logoColor=white)](https://maintainers.github.com/)
 
@@ -44,7 +44,7 @@ Learn about:
 1. [Skills](./02-github-copilot-latest-features/skills/README.md) 
 2. [Tools and Connectors](./02-github-copilot-latest-features/tools-and-connectors/README.md) 
 3. [Security Review](./02-github-copilot-latest-features/security-review/README.md) 
-4. [Scheduled Actions](./02-github-copilot-latest-features/automate/README.md) 
+4. [Automations](./02-github-copilot-latest-features/automate/README.md)
 
 ## Section 3: GitHub Universe Highlights
 
