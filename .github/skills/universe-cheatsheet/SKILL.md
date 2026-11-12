@@ -115,12 +115,15 @@ ls "$skill/template.html" "$skill/easter-egg.html" "$skill/magic-egg.svg" "$skil
      | grep -o 'https://github.com/user-attachments/assets/[^)]*')
    cheat=$(echo "$imgs" | sed -n 1p); egg=$(echo "$imgs" | sed -n 2p)
    magic=$(echo "$imgs" | sed -n 3p)
+   ```
+
+   Stop and explain if `cheat`, `egg` or `magic` is empty.
+
+   ```bash
    GH_REPO="$repo" gh issue edit "$number" --body "<img src=\"$magic\" alt=\"Magic egg\" width=\"96\" align=\"right\">
 
    $text"
    ```
-
-   Stop and explain if `cheat`, `egg` or `magic` is empty.
 
 7. `/create-issue-artifact` only attaches to the issue linked to the current
    session. Open a session from the new issue with `open_issue_session`
