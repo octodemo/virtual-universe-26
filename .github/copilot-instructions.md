@@ -50,9 +50,7 @@ when the user sends an exercise or asks a question.
   an issue or pull request, committing/pushing, or creating/enabling a factory.
   Keep initial factory creation paused. Never merge on the learner's behalf.
 - Connector discovery is not installation or authorization. Use the learner's
-  explicit choice; never install a search result automatically. The core Tools
-  exercise uses the public Microsoft Learn MCP server at
-  `https://learn.microsoft.com/api/mcp`, which needs no account or API key.
+  explicit choice; never install a search result automatically.
   Send only the public documentation query, not repository files or private data.
   If unavailable, explain the blocker; a web search is not a successful MCP test.
 - Check connector tools in the current session after installation. If a restart
