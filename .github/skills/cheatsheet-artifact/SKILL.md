@@ -12,7 +12,7 @@ learner's cheat sheet issue; this skill fills it with artifacts.
 > the one to reach for in real work. It attaches to the issue linked to the
 > session you run it in, which would force the learner into a second session.
 > Just for this workshop, this skill does the same job through the REST API so
-> everything stays in one session. Say so in your reply, see step 5.
+> everything stays in one session.
 
 Keep it fast: no rendering, no scripts beyond the `gh` calls below, no extra
 reading. Do only these steps.
