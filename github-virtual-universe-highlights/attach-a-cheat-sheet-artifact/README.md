@@ -16,7 +16,7 @@ In this section you'll run the `/create-issue-artifact` skill to attach a
 cheat sheet of the top updates from the Virtual Universe practical sessions to
 an issue.
 
-[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Doctodemo%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
+[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Dgarnertb%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
 
 The link opens a session with this guide as a canvas. Already in a session? Open
 **+ → Installed extensions → Universe '26 cheat sheet artifact**.

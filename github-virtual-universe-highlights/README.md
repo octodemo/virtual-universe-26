@@ -4,7 +4,7 @@ As a final exercise that brings together updates from the GitHub platform and
 GitHub Copilot, get started creating an
 [issue artifact](attach-a-cheat-sheet-artifact/README.md).
 
-[Open the guide in Copilot App](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Doctodemo%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
+[Open the guide in Copilot App](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Dgarnertb%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
 
 Check out the [GitHub Universe recap page](https://github.com/events/universe/recap/) for more.
 

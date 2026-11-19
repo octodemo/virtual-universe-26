@@ -19,32 +19,6 @@ Use `--attach` to add a screenshot to an issue, straight from the terminal.
 > terminal. A workflow can run the same `gh issue create --attach` command to
 > report failures on its own.
 
-## Before you start (skip if you already signed in on Section 1)
-
-To copy a command, hover over its code block and click the copy button at the
-top right. Paste it into the terminal at the bottom of your Codespace and press
-<kbd>Enter</kbd>. If the terminal isn't open, press <kbd>Ctrl</kbd>+<kbd>`</kbd>.
-
-Sign in to GitHub:
-
-```bash
-unset GH_TOKEN GITHUB_TOKEN
-gh auth login --hostname github.com --git-protocol https --web
-```
-
-Finish authorizing in the browser and wait for the terminal prompt to return.
-Then create your fork and make it the target for issues and pull requests:
-
-```bash
-gh auth setup-git &&
-gh repo fork --remote &&
-gh repo set-default "$(git remote get-url origin)" &&
-gh repo edit --enable-issues
-```
-
-After signing in, follow the steps below by copying and pasting the commands
-below into your terminal.
-
 ## 1. Go to this folder
 
 ```bash

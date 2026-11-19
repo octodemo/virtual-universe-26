@@ -8,7 +8,7 @@ response to a repository event. In this tutorial, start with a **Manual** trigge
 
 ## Open the tutorial
 
-[Launch the Universe welcome canvas](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Doctodemo%252Fvirtual-universe-26%26canvas%3Duniverse-welcome)
+[Launch the Universe welcome canvas](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Dgarnertb%252Fvirtual-universe-26%26canvas%3Duniverse-welcome)
 
 The link opens a repository session and requests the `universe-welcome` canvas.
 The repository must be trusted and its extension loaded.
