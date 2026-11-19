@@ -17,7 +17,7 @@ Start by downloading the [**GitHub Copilot app**](https://github.com/features/ai
 
 Click the button below to open a pre-configured Codespace with all the dependencies needed for the cookbooks in this section. 
 
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_GitHub_Codespaces-238636?style=flat&logo=github&logoColor=white)](https://codespaces.new/octodemo/virtual-universe-26?quickstart=1&devcontainer_path=.devcontainer/devcontainer.json)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_GitHub_Codespaces-238636?style=flat&logo=github&logoColor=white)](https://codespaces.new/garnertb/virtual-universe-26?quickstart=1&devcontainer_path=.devcontainer/devcontainer.json)
 
 1. [Attach images to an issue](./01-github-latest-features/attach-images-to-an-issue/README.md): Add a screenshot to an issue from the terminal.
 2. [Create a stacked PR](./01-github-latest-features/create-a-stacked-pr/README.md): Split one change into small pull requests that build on each other.
@@ -38,7 +38,7 @@ Are you an open source maintainer? Check out the settings we've shipped to help 
 
 Click the button below to open a guided GitHub Copilot App session to learn how to build your first Automation.
 
-[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Doctodemo%252Fvirtual-universe-26%26canvas%3Duniverse-welcome)
+[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Dgarnertb%252Fvirtual-universe-26%26canvas%3Duniverse-welcome)
 
 Learn about: 
 1. [Skills](./02-github-copilot-latest-features/skills/README.md) 
@@ -50,7 +50,7 @@ Learn about:
 
 ### Putting it all together
 
-[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Doctodemo%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
+[![Open in Copilot App](https://img.shields.io/badge/Open_in_Copilot_App-238636?style=flat&logo=githubcopilot&logoColor=white)](https://github.com/copilot/app/launch?open=ghapp%3A%2F%2Fsession%2Fnew%3Frepo%3Dgarnertb%252Fvirtual-universe-26%26canvas%3Duniverse-cheatsheet-artifact)
 
 1. [Attach a cheat sheet artifact](./github-virtual-universe-highlights/attach-a-cheat-sheet-artifact/): Attach an Artifact to an Issue and download a cheat sheet for everything in this repo. (Also find a ✨super duper secret surprise✨ at the end of this section)
 2. [GitHub Universe recap page](https://github.com/events/universe/recap/): View all the main announcements, with links to demos and resources.
