@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "Note-taker sample for the GitHub Virtual Universe '26 cookbooks",
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "list": "node list.js"
+  }
 }
