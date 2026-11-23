@@ -37,3 +37,11 @@ same `gh` commands you ran by hand in Section 1.
 - Never merge, approve, or close anything. A person reviews the pull request.
 - If the fix is unclear, comment on the issue with your questions instead of guessing.
 - Stage only the files you changed for this issue.
+- When a fix needs current library or API documentation, use the Context7 MCP
+  connector: resolve the library ID, then query the relevant documentation.
+  Send only public documentation questions; do not send repository code, private
+  paths, credentials, or other private project details.
+- Cite the relevant documentation URLs in the draft pull request body. If
+  Context7 is unavailable or the lookup fails, report that plainly and do not
+  claim the documentation was checked. If the lookup is needed to determine the
+  fix, pause rather than guessing or silently substituting another source.
